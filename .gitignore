@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
+.idea/
+.vscode/
+
+# Local Claude Code tool state -- not project source.
+.claude/
+
+# Bot-managed Obsidian vault -- generated per-user content, like the DB.
+/obsidian-vault/
+
+# Local migration package (DB dump, vault copy, .env) built for moving to
+# another machine -- contains secrets and personal data, never committed.
+/migration-package/

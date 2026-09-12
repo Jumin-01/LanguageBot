@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: languagebot
+      POSTGRES_PASSWORD: languagebot
+      POSTGRES_DB: languagebot
+    ports:
+      # Host port 5432 is often taken by a locally installed PostgreSQL service on
+      # Windows dev machines, so the container's port is published on 55432 instead.
+      # Container-to-container traffic (bot -> postgres) is unaffected; it always
+      # uses the internal port 5432 via the "postgres" service hostname.
+      - "55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U languagebot -d languagebot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Bot-managed Obsidian vault, bind-mounted so it's directly browsable
+      # on the host -- open ./obsidian-vault in the Obsidian desktop app.
+      - ./obsidian-vault:/app/obsidian-vault
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
